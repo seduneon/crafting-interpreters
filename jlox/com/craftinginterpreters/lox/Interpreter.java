@@ -1,14 +1,22 @@
 package com.craftinginterpreters.lox;
 
-class Interpreter implements Expr.Visitor<Object> {
+import java.util.List;
 
-  void interpret(Expr expression) {
+class Interpreter implements Expr.Visitor<Object>,
+                             Stmt.Visitor<Object> {
+
+  void interpret(List<Stmt> statements) {
     try {
-      Object value = evaluate(expression);
-      System.out.println(stringify(value));
+      for (Stmt statement : statements) {
+        execute(statement);
+      }
     } catch (RuntimeError error) {
       Lox.runtimeError(error);
     }
+  }
+
+  private void execute(Stmt stmt) {
+    stmt.accept(this);
   }
 
   private String stringify(Object object) {
@@ -29,8 +37,8 @@ class Interpreter implements Expr.Visitor<Object> {
   }
 
   @Override
-  public Object visitGroupExpr(Expr.Grouping expr) {
-    return evaluate(expr.expresssion);
+  public Object visitGroupingExpr(Expr.Grouping expr) {
+    return evaluate(expr.expression);
   }
 
   private Object evaluate(Expr expr) {
@@ -51,7 +59,7 @@ class Interpreter implements Expr.Visitor<Object> {
   }
 
   private boolean isTruthy(Object object) {
-    if (object == null) returnfalse;
+    if (object == null) return false;
     if (object instanceof Boolean) return (boolean)object;
     return true;
   }
@@ -87,7 +95,6 @@ class Interpreter implements Expr.Visitor<Object> {
         }
         throw new RuntimeError(expr.operator,
           "Operands must be two numbers or two strings.");
-        break;
       case SLASH:
         checkNumberOperands(expr.operator, left, right);
         return (double)left / (double)right;
@@ -115,6 +122,18 @@ class Interpreter implements Expr.Visitor<Object> {
     throw new RuntimeError(operator, "Operands must be numbers.");
   }
   
+  @Override
+  public Void visitExpressionStmt(Stmt.Expression stmt) {
+    evaluate(stmt.expression);
+    return null;
+  }
+
+  @Override
+  public Void visitPrintStmt(Stmt.Print stmt) {
+    Object value = evaluate(stmt.expression);
+    System.out.println(stringify(value));
+    return null;
+  }
 
   
 }
