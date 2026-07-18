@@ -8,7 +8,7 @@ import java.util.Map;
 class Interpreter implements Expr.Visitor<Object>,
                              Stmt.Visitor<Object> {
   final Environment globals = new Environment();
-  private Environment environment = new Environment();
+  private Environment environment = globals;
   private final Map<Expr, Integer> locals = new HashMap<>();
 
   Interpreter() {
