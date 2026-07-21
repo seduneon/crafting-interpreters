@@ -2,6 +2,7 @@
 #define clox_vm_h
 
 #include "chunk.h"
+#include "table.h"
 #include "value.h"
 
 #define STACK_MX 256
@@ -11,6 +12,7 @@ typedef struct {
   uint8_t* ip;
   Value stack[STACK_MX];
   Value *stackTop;
+  Table strings;
   Obj *objects;
 } VM;
   
